@@ -1,0 +1,39 @@
+#version 400 core
+
+in vec3 position;
+in vec2 textureCoordinates;
+in vec3 normal;
+
+out vec2 pass_textureCoordinates;
+out vec3 surfaceNormal;
+out vec3 toLightVector;
+out vec3 toCameraVector;
+out vec4 pass_vertexColor;
+
+uniform mat4 transformationMatrix;
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform vec3 lightPosition;
+uniform float maxHeight;
+uniform float minHeight;
+
+void main(void){
+
+	vec4 worldPosition = transformationMatrix * vec4(position,1.0);
+	gl_Position = projectionMatrix * viewMatrix * worldPosition;
+	pass_textureCoordinates = textureCoordinates * 40.0;
+	
+	float heightProportion = (worldPosition.y - minHeight) / (maxHeight - minHeight);
+	pass_vertexColor = vec4(1.4*(heightProportion), 0.9-2*(heightProportion-0.5)*(heightProportion-0.5), 0.8-(heightProportion), 1.0);
+	//pass_vertexColor = vec4(1.5*heightProportion+0.5, 1.5*heightProportion+0.5, 1.5*heightProportion+0.5, 1);
+	
+	//if(heightProportion <= 0.24 && heightProportion >= 0.23){
+	//	pass_vertexColor = vec4(1,1,1,1);
+	//}
+	
+	surfaceNormal = (transformationMatrix * vec4(normal,0.0)).xyz;
+	toLightVector = lightPosition - worldPosition.xyz;
+	toCameraVector = (inverse(viewMatrix) * vec4(1.0,0.0,0.0,1.0)).xyz - worldPosition.xyz;
+	
+	
+}
