@@ -1,11 +1,15 @@
 package terrains;
 
+import java.util.ArrayList;
+
+import org.lwjgl.util.vector.Matrix4f;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import models.RawModel;
 import renderEngine.FileInterpreter;
 import renderEngine.Loader;
 import routeFinder.GraphGenerator;
+import routeFinder.Route;
 import textures.ModelTexture;
 
 public class Terrain {
@@ -16,11 +20,13 @@ public class Terrain {
 	private float x;
 	private float z;
 	private RawModel model;
-	private ModelTexture texture;
+//	private ModelTexture texture;
 	private float[] vertices;
 	
-	public Terrain(int gridX, int gridZ, Loader loader, ModelTexture texture){
-		this.texture = texture;
+	private FileInterpreter fileInterpreter;
+	
+	public Terrain(int gridX, int gridZ, Loader loader){//, ModelTexture texture){
+		//this.texture = texture;
 		this.x = gridX * SIZE;
 		this.z = gridZ * SIZE;
 		this.model = generateTerrain(loader);
@@ -72,8 +78,25 @@ public class Terrain {
 		return minHeight;
 	}
 
-	public ModelTexture getTexture() {
-		return texture;
+	public float[] getRoute(){
+		GraphGenerator graphGenerator = new GraphGenerator(this.fileInterpreter);
+		FileInterpreter dsmInterpreter = new FileInterpreter(false);
+		GraphGenerator dsmGenerator = new GraphGenerator(dsmInterpreter);
+		int[] start = {50,505};
+		int[] end = {150,700};
+		graphGenerator.setStartPoint(start);
+		graphGenerator.setEndPoint(end);
+		graphGenerator.makeRoute(dsmGenerator);
+		Route route = graphGenerator.getRoute();
+		System.out.printf("route number of vertices: %d \n", route.getPath().size());
+		ArrayList<int[]> rawRoutePath = route.getPath();
+		float[] routePath = new float[2*rawRoutePath.size()];
+		for(int x = 0; x < rawRoutePath.size(); x++){
+			int[] position = rawRoutePath.get(x);
+			routePath[2 * x] = position[0];
+			routePath[2 * x + 1] = position[1];
+		}
+		return routePath;
 	}
 
 	private RawModel generateTerrain(Loader loader){
@@ -111,10 +134,27 @@ public class Terrain {
 				indices[pointer++] = bottomRight;
 			}
 		}
-		FileInterpreter fileInterpreter = new FileInterpreter();
+		this.fileInterpreter = new FileInterpreter(true);
 		vertices = fileInterpreter.getVertices();
-		GraphGenerator graphGenerator = new GraphGenerator(fileInterpreter);
-		return loader.loadToVAO(vertices, textureCoords, normals, indices);
+		float[] route = getRoute();
+		float[] isInRoute = new float[vertices.length];
+		for(int vertexIndex = 0; vertexIndex < vertices.length; vertexIndex+=3){
+			isInRoute[vertexIndex] = 0;
+			isInRoute[vertexIndex+1] = 0;
+			isInRoute[vertexIndex+2] = 0;
+			for(int routeIndex = 0; routeIndex < route.length / 2; routeIndex++){
+				if(vertices[vertexIndex] >= route[2 * routeIndex] - 1 && 
+				vertices[vertexIndex] <= route[2 * routeIndex] + 1 &&
+				vertices[vertexIndex + 2] >= route[2 * routeIndex + 1] - 1 &&
+				vertices[vertexIndex + 2] <= route[2 * routeIndex + 1] + 1){
+					isInRoute[vertexIndex] = 1;
+					isInRoute[vertexIndex + 1] = 1;
+					isInRoute[vertexIndex + 2] = 1;
+					break;
+				}
+			}
+		}
+		return loader.loadToVAO(vertices, textureCoords, isInRoute, indices, isInRoute);
 	}
 
 }

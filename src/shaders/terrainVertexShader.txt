@@ -3,6 +3,7 @@
 in vec3 position;
 in vec2 textureCoordinates;
 in vec3 normal;
+in vec3 isInRoute;
 
 out vec2 pass_textureCoordinates;
 out vec3 surfaceNormal;
@@ -27,11 +28,12 @@ void main(void){
 	pass_vertexColor = vec4(1.4*(heightProportion), 0.9-2*(heightProportion-0.5)*(heightProportion-0.5), 0.8-(heightProportion), 1.0);
 	//pass_vertexColor = vec4(1.5*heightProportion+0.5, 1.5*heightProportion+0.5, 1.5*heightProportion+0.5, 1);
 	
-	//if(heightProportion <= 0.24 && heightProportion >= 0.23){
-	//	pass_vertexColor = vec4(1,1,1,1);
-	//}
+	if(normal.x != 0){
+		pass_vertexColor = vec4(1,1,1,1);
+	}
+	vec3 newNormal = vec3(0,1,0);
 	
-	surfaceNormal = (transformationMatrix * vec4(normal,0.0)).xyz;
+	surfaceNormal = (transformationMatrix * vec4(newNormal,0.0)).xyz;
 	toLightVector = lightPosition - worldPosition.xyz;
 	toCameraVector = (inverse(viewMatrix) * vec4(1.0,0.0,0.0,1.0)).xyz - worldPosition.xyz;
 	

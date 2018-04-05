@@ -64,6 +64,10 @@ public abstract class ShaderProgram {
 		GL20.glUniform1f(location, value);
 	}
 	
+	protected void loadInt(int location, int value){
+		GL20.glUniform1i(location, value);
+	}
+	
 	protected void loadVector(int location, Vector3f vector){
 		GL20.glUniform3f(location,vector.x,vector.y,vector.z);
 	}
@@ -74,6 +78,12 @@ public abstract class ShaderProgram {
 			toLoad = 1;
 		}
 		GL20.glUniform1f(location, toLoad);
+	}
+	
+	protected void loadFloatArray(int location, float[] array){
+		FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(array.length);
+		floatBuffer.put(array);
+		GL20.glUniform1(location, floatBuffer);
 	}
 	
 	protected void loadMatrix(int location, Matrix4f matrix){

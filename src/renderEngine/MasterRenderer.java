@@ -24,9 +24,6 @@ public class MasterRenderer {
 	private static final float NEAR_PLANE = 0.1f;
 	private static final float FAR_PLANE = 1000;
 	
-	private float maxHeight;
-	private float minHeight;
-	
 	private Matrix4f projectionMatrix;
 	
 	private StaticShader shader = new StaticShader();
@@ -107,5 +104,8 @@ public class MasterRenderer {
 		projectionMatrix.m33 = 0;
 	}
 	
+	public Matrix4f getProjectionMatrix(){
+		return projectionMatrix;
+	}
 
 }

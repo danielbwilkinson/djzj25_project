@@ -7,7 +7,9 @@ import java.io.IOException;
 
 public class FileInterpreter {
 
-	private final String fileName = "C:/Users/Daniel Wilkinson/Documents/Uni/Year 3/Project/data/nz2045_DTM_1M.asc"; //+ "/LIDAR-DSM-1M-NZ24nw/nz2045_DSM_1M.asc";
+	private final String dtmFileName = "C:/Users/Daniel Wilkinson/Documents/Uni/Year 3/Project/data/nz2045_DTM_1M.asc";
+	private final String dsmFileName = "C:/Users/Daniel Wilkinson/Documents/Uni/Year 3/Project/data/LIDAR-DSM-1M-NZ24nw/nz2045_DSM_1M.asc";
+
 	private int NCOLS;
 	private int NROWS;
 	private int XLLCORNER;
@@ -18,9 +20,14 @@ public class FileInterpreter {
 	private float[] vertices;
 	private int[] indices;
 	
-	public FileInterpreter(){
+	public FileInterpreter(boolean getDTM){
 		try{
-			FileReader fileReader = new FileReader(fileName);
+			FileReader fileReader;
+			if(getDTM){
+				fileReader = new FileReader(dtmFileName);
+			} else {
+				fileReader = new FileReader(dsmFileName);
+			}
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			this.lineCounter = 0;
 			String line;
@@ -50,6 +57,10 @@ public class FileInterpreter {
 	
 	public int getNCOLS(){
 		return this.NCOLS;
+	}
+	
+	public float getNODATA_VALUE(){
+		return this.NODATA_VALUE;
 	}
 	
 	private void interpretLine(String line){

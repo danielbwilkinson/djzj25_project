@@ -1,6 +1,7 @@
 package shaders;
 
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 import toolbox.Maths;
 import entities.Camera;
@@ -42,6 +43,7 @@ public class TerrainShader extends ShaderProgram{
 		super.bindAttribute(0, "position");
 		super.bindAttribute(1, "textureCoordinates");
 		super.bindAttribute(2, "normal");
+		super.bindAttribute(3, "isInRoute");
 	}
 
 	@Override
@@ -78,6 +80,7 @@ public class TerrainShader extends ShaderProgram{
 		super.loadFloat(location_maxHeight, this.maxHeight);
 		super.loadFloat(location_minHeight, this.minHeight);
 	}
+	
 	
 	public void loadViewMatrix(Camera camera){
 		Matrix4f viewMatrix = Maths.createViewMatrix(camera);

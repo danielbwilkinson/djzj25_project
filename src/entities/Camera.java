@@ -20,34 +20,37 @@ public class Camera {
 	public Camera(){}
 	
 	public void move(Terrain terrain){
+		boolean posMoved = false;
 		if(Keyboard.isKeyDown(Keyboard.KEY_W)){
 			position.z-=SPEED*Math.cos(Math.toRadians(yaw));
 			position.x+=SPEED*Math.sin(Math.toRadians(yaw));
-			float terrainHeight = terrain.getHeightAtPos(Math.round(position.x), Math.round(position.z));
-			if(terrainHeight + CAM_HEIGHT >= position.y + 10 || terrainHeight + CAM_HEIGHT <= position.y - 10){
-				//assume flying
-				position.y = (float)(position.y - SPEED*Math.sin(Math.toRadians(pitch)));
-				System.out.println(terrainHeight + CAM_HEIGHT);
-				System.out.println(position.y);
-			}
-			else {
-				position.y = (terrainHeight + CAM_HEIGHT + position.y)/2;
-			}
-//			position.y = (float)Math.max(position.y - SPEED*Math.sin(Math.toRadians(pitch)), terrainHeight + CAM_HEIGHT);
-			
+			posMoved = true;
 		}
 		if(Keyboard.isKeyDown(Keyboard.KEY_S)){
 			position.z+=SPEED*Math.cos(Math.toRadians(yaw));
 			position.x-=SPEED*Math.sin(Math.toRadians(yaw));
+			posMoved = true;
 		}
 		if(Keyboard.isKeyDown(Keyboard.KEY_D)){
 			position.z+=SPEED*Math.sin(Math.toRadians(yaw));
 			position.x+=SPEED*Math.cos(Math.toRadians(yaw));
+			posMoved = true;
 		}
 		if(Keyboard.isKeyDown(Keyboard.KEY_A)){
 			position.z-=SPEED*Math.sin(Math.toRadians(yaw));
 			position.x-=SPEED*Math.cos(Math.toRadians(yaw));
+			posMoved = true;
 		}
+		
+		float terrainHeight = terrain.getHeightAtPos(Math.round(position.x), Math.round(position.z));
+		if (posMoved && (terrainHeight + CAM_HEIGHT >= position.y + 10 || terrainHeight + CAM_HEIGHT <= position.y - 10)){
+			//assume flying
+			position.y = (float)(position.y - SPEED*Math.sin(Math.toRadians(pitch)));
+		}
+		else if (posMoved){
+			position.y = (terrainHeight + CAM_HEIGHT + position.y)/2;
+		}
+		
 		if(Keyboard.isKeyDown(Keyboard.KEY_SPACE)){
 			position.y+=2f;
 		}
@@ -62,11 +65,9 @@ public class Camera {
 		}
 		if(Keyboard.isKeyDown(Keyboard.KEY_UP) && pitch >= -90){
 			pitch -= 0.5f;
-			System.out.println(pitch);
 		}
 		if(Keyboard.isKeyDown(Keyboard.KEY_DOWN) && pitch <= 90){
 			pitch += 0.5f;
-			System.out.println(pitch);
 		}
 	}
 

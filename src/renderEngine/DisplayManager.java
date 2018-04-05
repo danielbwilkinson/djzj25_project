@@ -46,5 +46,12 @@ public class DisplayManager {
 		Display.destroy();
 		
 	}
+	
+	public static int getWidth(){
+		return WIDTH;
+	}
 
+	public static int getHeight(){
+		return HEIGHT;
+	}
 }

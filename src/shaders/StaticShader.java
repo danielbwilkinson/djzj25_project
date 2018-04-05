@@ -29,6 +29,7 @@ public class StaticShader extends ShaderProgram{
 		super.bindAttribute(0, "position");
 		super.bindAttribute(1, "textureCoordinates");
 		super.bindAttribute(2, "normal");
+		super.bindAttribute(3, "isInRoute");
 	}
 
 	@Override
@@ -40,7 +41,6 @@ public class StaticShader extends ShaderProgram{
 		location_lightColour = super.getUniformLocation("lightColour");
 		location_shineDamper = super.getUniformLocation("shineDamper");
 		location_reflectivity = super.getUniformLocation("reflectivity");
-		
 	}
 	
 	public void loadShineVariables(float damper,float reflectivity){
@@ -65,7 +65,4 @@ public class StaticShader extends ShaderProgram{
 	public void loadProjectionMatrix(Matrix4f projection){
 		super.loadMatrix(location_projectionMatrix, projection);
 	}
-	
-	
-
 }
