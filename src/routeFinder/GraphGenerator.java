@@ -179,7 +179,7 @@ public class GraphGenerator {
 	public double dangerCost(int[] point1, int[] point2, int graphScale){
 		double danger = 0;
 		danger += elevationAdvantageDifference(point1, point2);
-		
+		danger += coverExposure(point1, point2);
 		return danger;
 	}
 	
@@ -266,6 +266,51 @@ public class GraphGenerator {
 		}
 		
 		return Math.max(0,point2ElevAdv - point1ElevAdv);		
+	}
+	
+	public double coverExposure(int[] point1, int[] point2){
+		// basis for analysis: More neighbours with surfaces significantly higher than point's terrain == better 
+		
+		double exposure = 0;
+		double point1DtmHeight = heightOfPos(point1);
+		double point2DtmHeight = heightOfPos(point2);
+		
+		// get extended neighbours of points
+		ArrayList<int[]> point1Neighbours = new ArrayList<int[]>();
+		ArrayList<int[]> point2Neighbours = new ArrayList<int[]>();
+		
+		for(int x = 0; x < 3; x++){
+			point1Neighbours.addAll(getNeighbours(point1, x));
+			point2Neighbours.addAll(getNeighbours(point2, x));
+		}
+		
+		// get proportion of neighbours that provide cover		
+		double coveringNeighboursPoint1 = 0;
+		double coveringNeighboursPoint2 = 0;
+		
+		for(int[] neighbour : point1Neighbours){
+			double neighbourDsmHeight = dsmGraph.heightOfPos(neighbour);
+			if(neighbourDsmHeight - point1DtmHeight > 1){
+				coveringNeighboursPoint1++;
+			}
+		}
+		coveringNeighboursPoint1 /= point1Neighbours.size();
+		
+		// larger == more dangerous
+		coveringNeighboursPoint1 = 1 - coveringNeighboursPoint1;
+		
+		for(int[] neighbour : point2Neighbours){
+			double neighbourDsmHeight = dsmGraph.heightOfPos(neighbour);
+			if(neighbourDsmHeight - point2DtmHeight > 1){
+				coveringNeighboursPoint2++;
+			}
+		}
+		coveringNeighboursPoint2 /= point2Neighbours.size();
+		coveringNeighboursPoint2 = 1 - coveringNeighboursPoint2;
+		
+		exposure = Math.max(0, coveringNeighboursPoint2 - coveringNeighboursPoint1);		
+		
+		return exposure;
 	}
 	
 	public double groundTypeCoeff(int[] point1, int[] point2, int graphScale){
