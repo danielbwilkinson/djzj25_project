@@ -1,6 +1,9 @@
 package routeFinder;
 
 import java.util.ArrayList;
+
+import engineTester.Config;
+
 import java.lang.Math;
 
 public class Route {
@@ -23,9 +26,9 @@ public class Route {
 	}
 	
 	public double costFunction(int[] point1, int[] point2, int graphScale){
-		double c =  graphGenerator.exertionBetweenNeighbours(point1, point2, graphScale);
-		c += graphGenerator.dangerCost(point1, point2, graphScale);
+		double c =  graphGenerator.exertionBetweenNeighbours(point1, point2, graphScale) * Config.exertionWeight;
 		c *= graphGenerator.groundTypeCoeff(point1, point2, graphScale);
+		c += (graphGenerator.dangerCost(point1, point2, graphScale) * Config.dangerWeight);
 		return c;
 	}
 	

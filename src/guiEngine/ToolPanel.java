@@ -21,6 +21,7 @@ public class ToolPanel extends JPanel {
 	private JButton friendlyButton;
 	private JButton findRouteButton;
 	private JButton routeParamsButton;
+	private JButton changeModelButton;
 	private JPanel fillerPanel;
 	private JFileChooser fc;
 	private GridBagConstraints gc;
@@ -79,9 +80,24 @@ public class ToolPanel extends JPanel {
 		
 		findRouteButton = new JButton("Find Route");
 		findRouteButton.setFont(buttonFont);
+		findRouteButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0){
+				GuiMain.getRenderPanel().makeRoute();
+			}
+		});
 		
 		routeParamsButton = new JButton("Route Parameters");
 		routeParamsButton.setFont(buttonFont);
+		
+		changeModelButton = new JButton("Change Model");
+		changeModelButton.setFont(buttonFont);
+		changeModelButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0){
+				GuiMain.getRenderPanel().changeModel();
+			}
+		});
 		
 		// Create page layout
 		
@@ -119,8 +135,11 @@ public class ToolPanel extends JPanel {
 		gc.gridx = 6;
 		add(routeParamsButton, gc);	
 		
-		//filler panel to push options to left
 		gc.gridx = 7;
+		add(changeModelButton, gc);
+		
+		//filler panel to push options to left
+		gc.gridx = 8;
 		gc.weightx = 1;
 		fillerPanel = new JPanel();
 		fillerPanel.setBackground(this.getBackground());

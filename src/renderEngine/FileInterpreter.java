@@ -5,10 +5,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import engineTester.Config;
+
 public class FileInterpreter {
 
-	private final String dtmFileName = "C:/Users/Daniel Wilkinson/Documents/Uni/Year 3/Project/data/nz2045_DTM_1M.asc";
-	private final String dsmFileName = "C:/Users/Daniel Wilkinson/Documents/Uni/Year 3/Project/data/LIDAR-DSM-1M-NZ24nw/nz2045_DSM_1M.asc";
+	private final String dtmFileName = Config.dtmFileName;//"C:/Users/Daniel Wilkinson/Documents/Uni/Year 3/Project/data/nz2045_DTM_1M.asc";
+	private final String dsmFileName = Config.dsmFileName;//"C:/Users/Daniel Wilkinson/Documents/Uni/Year 3/Project/data/LIDAR-DSM-1M-NZ24nw/nz2045_DSM_1M.asc";
 
 	private int NCOLS;
 	private int NROWS;

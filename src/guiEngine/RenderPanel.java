@@ -38,6 +38,7 @@ public class RenderPanel extends JPanel{
 			public void run(){
 				isRunning = true;
 				mainGameLoop = new MainGameLoop(canvas);
+				mainGameLoop.run();
 			}
 		});
 		renderThread.start();
@@ -51,5 +52,13 @@ public class RenderPanel extends JPanel{
 		} catch (InterruptedException e){
 			e.printStackTrace();
 		}
+	}
+	
+	public void makeRoute(){
+		mainGameLoop.makeRoute();
+	}
+	
+	public void changeModel(){
+		mainGameLoop.changeModel();
 	}
 }

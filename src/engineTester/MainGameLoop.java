@@ -24,26 +24,62 @@ import entities.Light;
 public class MainGameLoop {
 
 	private volatile boolean isRunning;
+	private volatile boolean routeRequested;
+	private volatile boolean changeModelRequested;
+	private Terrain terrain;
+	private Loader loader;
+	private Light light;
+	private float maxHeight;
+	private float minHeight;
+	private Camera camera;
+	private MasterRenderer renderer;
+	private InputHandler inputHandler;
 	
 	//public static void main(String[] args) {
 	public MainGameLoop(Canvas canvas){
 		DisplayManager.createDisplay(canvas);
-		Loader loader = new Loader();
+		loader = new Loader();
 		isRunning = true;
+		routeRequested = false;
+		changeModelRequested = false;
 		
-		Light light = new Light(new Vector3f(20000,20000,2000),new Vector3f(1,1,1));
+		light = new Light(new Vector3f(20000,20000,2000),new Vector3f(1,1,1));
 		
-		Terrain terrain = new Terrain(0,0,loader);
+		terrain = new Terrain(0,0,loader);
 		
-		float maxHeight = terrain.getMaxHeight();
-		float minHeight = terrain.getMinHeight();
-		//float[] route = terrain.getRoute();
+		maxHeight = terrain.getMaxHeight();
+		minHeight = terrain.getMinHeight();
 		
-		Camera camera = new Camera();	
-		MasterRenderer renderer = new MasterRenderer(maxHeight, minHeight);
-		InputHandler inputHandler = new InputHandler(camera, renderer);
+		camera = new Camera();	
+		renderer = new MasterRenderer(maxHeight, minHeight);
+		inputHandler = new InputHandler(camera, renderer);
 		
+//		while(!Display.isCloseRequested() && isRunning){
+//			camera.move(terrain);
+//			
+//			renderer.processTerrain(terrain);
+//			renderer.render(light, camera);
+//			inputHandler.pollInput();
+//			DisplayManager.updateDisplay();
+//		}
+//
+//		renderer.cleanUp();
+//		loader.cleanUp();
+//		DisplayManager.closeDisplay();
+
+	}
+	
+	public void run(){
 		while(!Display.isCloseRequested() && isRunning){
+			if(routeRequested){
+				routeRequested = false;
+				terrain.makeRoute(loader);
+			}
+			if(changeModelRequested){
+				changeModelRequested = false;
+				terrain.changeModel(loader);
+			}
+			
 			camera.move(terrain);
 			
 			renderer.processTerrain(terrain);
@@ -55,11 +91,18 @@ public class MainGameLoop {
 		renderer.cleanUp();
 		loader.cleanUp();
 		DisplayManager.closeDisplay();
-
 	}
 	
 	public void requestClose(){
 		isRunning = false;
+	}
+	
+	public void makeRoute(){
+		routeRequested = true;
+	}
+	
+	public void changeModel(){
+		changeModelRequested = true;
 	}
 
 }

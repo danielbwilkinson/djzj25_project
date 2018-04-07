@@ -17,10 +17,10 @@ public class GuiMain {
 	private GridBagConstraints gc;
 	
 	//individual interface declaration
-	private ToolPanel toolPanel;
-	private IntelPanel intelPanel;
-	private RenderPanel renderPanel;
-	private RouteInfoPanel routeInfoPanel;
+	private static ToolPanel toolPanel;
+	private static IntelPanel intelPanel;
+	private static RenderPanel renderPanel;
+	private static RouteInfoPanel routeInfoPanel;
 	//individual button declaration
 	
 	/**
@@ -104,6 +104,10 @@ public class GuiMain {
 		
 		
 		frame.getContentPane().add(container);
+	}
+	
+	public static RenderPanel getRenderPanel(){
+		return renderPanel;
 	}
 }
 
