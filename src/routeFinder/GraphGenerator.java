@@ -186,7 +186,7 @@ public class GraphGenerator {
 	public double elevationAdvantageDifference(int[] point1, int[] point2){
 		ArrayList<int[]> point1Neighbours = new ArrayList<int[]>();
 		ArrayList<int[]> point2Neighbours = new ArrayList<int[]>();
-		for(int neighbourDistance = 0; neighbourDistance < 5; neighbourDistance+=2){
+		for(int neighbourDistance = 0; neighbourDistance < 7; neighbourDistance++){
 			point1Neighbours.addAll(getNeighbours(point1, neighbourDistance));
 			point2Neighbours.addAll(getNeighbours(point2, neighbourDistance));
 		}
@@ -311,21 +311,37 @@ public class GraphGenerator {
 		}
 		point1DsmSumDiffSquared /= point1DsmNeighbourHeights.size();
 		
+		
+		
 		int point1GroundType;
 		// if less than 1 metre between terrain and surface, ground type is open
 		if(point1AvgDtm > point1AvgDsm - 1){
 			point1GroundType = GROUND_TYPE_OPEN;
 		}
 		// if variance is small, assume area is building
-		else if(point1DsmSumDiffSquared < 0.001){
-			point1GroundType = GROUND_TYPE_BUILDING;
-		}
-		// if variance is large and surface higher than terrain, ground type is forest
-		else if(point1DsmSumDiffSquared > 1){
-			point1GroundType = GROUND_TYPE_FOREST;
-		}
-		else{
-			point1GroundType = GROUND_TYPE_OTHER;
+		else {
+			// calculate correlation between neighbour heights
+			double correlationCoeffPoint1 = calculateCorrelation(point1Neighbours, point1DsmNeighbourHeights);
+			double correlationCoeffPoint2 = calculateCorrelation(point2Neighbours, point2DsmNeighbourHeights);
+			
+			if((correlationCoeffPoint1 > -5 && correlationCoeffPoint1 < 5) || (correlationCoeffPoint2 > -5 && correlationCoeffPoint2 < 5)){
+				//System.out.printf("point %d %d coeff %f\n", point1[0], point1[1], correlationCoeffPoint1);
+				point1GroundType = GROUND_TYPE_BUILDING;
+			}
+//			if(correlationCoeffPoint2 > -50 && correlationCoeffPoint2 < 50){
+//				System.out.printf("point %d %d coeff %f\n", point2[0], point2[1], correlationCoeffPoint2);
+//			}
+//			
+//			if(point1DsmSumDiffSquared < 0.001){
+//				point1GroundType = GROUND_TYPE_BUILDING;
+//			}
+			// if variance is large and surface higher than terrain, ground type is forest
+			else if(point1DsmSumDiffSquared > 1){
+				point1GroundType = GROUND_TYPE_FOREST;
+			}
+			else{
+				point1GroundType = GROUND_TYPE_OTHER;
+			}
 		}
 
 
@@ -365,7 +381,7 @@ public class GraphGenerator {
 		
 		double coeff;
 		if(point1GroundType == GROUND_TYPE_BUILDING || point2GroundType == GROUND_TYPE_BUILDING){
-			coeff = 5;
+			coeff = 20;
 		}
 		else if(point1GroundType == GROUND_TYPE_FOREST || point2GroundType == GROUND_TYPE_FOREST){
 			coeff = 2.5;
@@ -378,5 +394,51 @@ public class GraphGenerator {
 		}
 		
 		return coeff;
+	}
+	
+	public double calculateCorrelation(ArrayList<int[]> positions, ArrayList<Double> heights){
+		// X = position[0], Y = height, Z = position[1]
+		
+		double totalXYZ = 0;
+		double meanXYZ;
+		double totalX = 0;
+		double meanX;
+		double totalY = 0;
+		double meanY;
+		double totalZ = 0;
+		double meanZ;
+		double totalXsquared = 0;
+		double meanXsquared;
+		double totalYsquared = 0;
+		double meanYsquared;
+		double totalZsquared = 0;
+		double meanZsquared;
+		
+		int numberOfNeighbours = positions.size();
+		
+		for(int index = 0; index < numberOfNeighbours; index++){
+			int[] position = positions.get(index);
+			double height = heights.get(index);
+			totalXYZ += position[0] * height * position[1];
+			totalX += position[0];
+			totalY += height;
+			totalZ += position[1];
+			totalXsquared += position[0] * position[0];
+			totalYsquared += height * height;
+			totalZsquared += position[1] * position[1];
+		}
+		
+		meanXYZ = totalXYZ / numberOfNeighbours;
+		meanX = totalX / numberOfNeighbours;
+		meanY = totalY / numberOfNeighbours;
+		meanZ = totalZ / numberOfNeighbours;
+		meanXsquared = totalXsquared / numberOfNeighbours;
+		meanYsquared = totalYsquared / numberOfNeighbours;
+		meanZsquared = totalZsquared / numberOfNeighbours;
+		
+		double coeff =	(meanXYZ - (meanX * meanY * meanZ)) / 
+						(Math.sqrt(meanXsquared - (meanX * meanX)) * Math.sqrt(meanYsquared - (meanY * meanY)) * Math.sqrt(meanZsquared - (meanZ * meanZ)));
+		return coeff;
+		
 	}
 }

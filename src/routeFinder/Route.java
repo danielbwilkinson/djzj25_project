@@ -33,18 +33,25 @@ public class Route {
 	}
 	
 	public boolean dijkstra(){
-		int graphScale = (int) Math.round(graphGenerator.asTheCrowFlies(start, end) / 50);
+		int graphScale = (int) Math.round(graphGenerator.asTheCrowFlies(start, end) / 100);
+		System.out.printf("Graph scale: %d\n", graphScale);
+		
+		ArrayList<int[]> initialNeighbours = graphGenerator.getNeighbours(start, graphScale);
+		for(int[] neighbour : initialNeighbours){
+			System.out.printf("%d %d \n", neighbour[0], neighbour[1]);
+		}
+		
 		if(graphScale == 0){
 			graphScale = 1;
 		}
 		int[] scaledEnd = new int[2];
-		scaledEnd[0] = (int) Math.max(1, (graphScale * Math.floor(this.end[0] / graphScale)));
-		scaledEnd[1] = (int) Math.max(1, (graphScale * Math.floor(this.end[1] / graphScale)));
+		scaledEnd[0] = (int) (graphScale * Math.floor(this.end[0] / graphScale));
+		scaledEnd[1] = (int) (graphScale * Math.floor(this.end[1] / graphScale));
 		this.end = scaledEnd;
 		
 		int[] scaledStart = new int[2];
-		scaledStart[0] = (int) Math.max(1, (graphScale * Math.floor(this.start[0] / graphScale)));
-		scaledStart[1] = (int) Math.max(1, (graphScale * Math.floor(this.start[1] / graphScale)));
+		scaledStart[0] = (int) (graphScale * Math.floor(this.start[0] / graphScale));
+		scaledStart[1] = (int) (graphScale * Math.floor(this.start[1] / graphScale));
 		this.start = scaledStart;
 		
 		//Initialise lists to keep track of needed variables for algorithm

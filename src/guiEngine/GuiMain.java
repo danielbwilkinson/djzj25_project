@@ -109,5 +109,9 @@ public class GuiMain {
 	public static RenderPanel getRenderPanel(){
 		return renderPanel;
 	}
+	
+	public static IntelPanel getIntelPanel(){
+		return intelPanel;
+	}
 }
 

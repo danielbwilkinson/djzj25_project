@@ -84,7 +84,7 @@ public class MainGameLoop {
 			
 			renderer.processTerrain(terrain);
 			renderer.render(light, camera);
-			inputHandler.pollInput();
+			//inputHandler.pollInput();
 			DisplayManager.updateDisplay();
 		}
 

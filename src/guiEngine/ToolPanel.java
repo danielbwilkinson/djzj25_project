@@ -83,6 +83,7 @@ public class ToolPanel extends JPanel {
 		findRouteButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0){
+				GuiMain.getIntelPanel().setRouteParams();
 				GuiMain.getRenderPanel().makeRoute();
 			}
 		});
