@@ -26,6 +26,7 @@ public class MainGameLoop {
 	private volatile boolean isRunning;
 	private volatile boolean routeRequested;
 	private volatile boolean changeModelRequested;
+	private volatile boolean resetRequested;
 	private Terrain terrain;
 	private Loader loader;
 	private Light light;
@@ -34,6 +35,7 @@ public class MainGameLoop {
 	private Camera camera;
 	private MasterRenderer renderer;
 	private InputHandler inputHandler;
+	private ArrayList<int[]> enemyLocations;
 	
 	//public static void main(String[] args) {
 	public MainGameLoop(Canvas canvas){
@@ -42,7 +44,8 @@ public class MainGameLoop {
 		isRunning = true;
 		routeRequested = false;
 		changeModelRequested = false;
-		
+		resetRequested = false;
+		enemyLocations = new ArrayList<int[]>();
 		light = new Light(new Vector3f(20000,20000,2000),new Vector3f(1,1,1));
 		
 		terrain = new Terrain(0,0,loader);
@@ -79,6 +82,15 @@ public class MainGameLoop {
 				changeModelRequested = false;
 				terrain.changeModel(loader);
 			}
+			if(resetRequested){
+				resetRequested = false;
+				loader = new Loader();
+				terrain = new Terrain(0,0,loader);
+				maxHeight = terrain.getMaxHeight();
+				minHeight = terrain.getMinHeight();
+				renderer = new MasterRenderer(maxHeight, minHeight);
+				inputHandler = new InputHandler(camera, renderer);
+			}
 			
 			camera.move(terrain);
 			
@@ -101,8 +113,25 @@ public class MainGameLoop {
 		routeRequested = true;
 	}
 	
+	public void resetRender(){
+		resetRequested = true;
+	}
+	
 	public void changeModel(){
 		changeModelRequested = true;
+	}
+	
+	public void addEnemy(int xCoord, int yCoord){
+		int[] newEnemyLoc = {xCoord, yCoord};
+		enemyLocations.add(newEnemyLoc);
+	}
+	
+	public ArrayList<int[]> getEnemyLocations(){
+		return enemyLocations;
+	}
+	
+	public void clearEnemies(){
+		enemyLocations = new ArrayList<int[]>();
 	}
 
 }

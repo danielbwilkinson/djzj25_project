@@ -2,6 +2,7 @@ package routeFinder;
 
 import java.util.ArrayList;
 
+import engineTester.Config;
 import renderEngine.FileInterpreter;
 
 public class GraphGenerator {
@@ -87,7 +88,7 @@ public class GraphGenerator {
 		double energy = 0;
 		double gradient = height / distance;
 		if(gradient >= 0){
-			energy = (100 * gradient) + 10;
+			energy = (100 * gradient * gradient) + 10;
 		} else if (gradient > -0.1) {
 			energy = (50 * gradient) + 10;
 		} else {
@@ -122,55 +123,75 @@ public class GraphGenerator {
 		return height;
 	}
 	
+	public double rawHeightOfPos(int[] pos){
+		return this.vertices[(pos[1] * this.NCOLS + pos[0]) * 3 + 1];
+	}
+	
 	public ArrayList<int[]> getNeighbours(int[] pos, int graphScale){
 		ArrayList<int[]> neighbours = new ArrayList<int[]>();
 		
 		// add top left
 		if(pos[0] > graphScale - 1 && pos[1] > graphScale - 1){
 			int[] neighbour = {pos[0] - graphScale, pos[1] - graphScale};
-			neighbours.add(neighbour);
+			if(rawHeightOfPos(neighbour) != fileInterpreter.getNODATA_VALUE()){
+				neighbours.add(neighbour);
+			}
 		};
 		
 		// add top centre
 		if(pos[1] > graphScale - 1){
 			int[] neighbour = {pos[0], pos[1] - graphScale};
-			neighbours.add(neighbour);
+			if(rawHeightOfPos(neighbour) != fileInterpreter.getNODATA_VALUE()){
+				neighbours.add(neighbour);
+			}
 		};
 		
 		// add top right
 		if(pos[0] < this.NCOLS-graphScale && pos[1] > graphScale - 1){
 			int[] neighbour = {pos[0] + graphScale, pos[1] - graphScale};
-			neighbours.add(neighbour);
+			if(rawHeightOfPos(neighbour) != fileInterpreter.getNODATA_VALUE()){
+				neighbours.add(neighbour);
+			}
 		};
 		
 		// add middle left
 		if(pos[0] > graphScale - 1){
 			int[] neighbour = {pos[0] - graphScale, pos[1]};
-			neighbours.add(neighbour);
+			if(rawHeightOfPos(neighbour) != fileInterpreter.getNODATA_VALUE()){
+				neighbours.add(neighbour);
+			}
 		};
 		
 		// add middle right
 		if(pos[0] < this.NCOLS - graphScale){
 			int[] neighbour = {pos[0] + graphScale, pos[1]};
-			neighbours.add(neighbour);
+			if(rawHeightOfPos(neighbour) != fileInterpreter.getNODATA_VALUE()){
+				neighbours.add(neighbour);
+			}
 		};
 		
 		// add bottom left
 		if(pos[0] > graphScale - 1 && pos[1] < this.NROWS - graphScale){
 			int[] neighbour = {pos[0] - graphScale, pos[1] + graphScale};
-			neighbours.add(neighbour);
+			if(rawHeightOfPos(neighbour) != fileInterpreter.getNODATA_VALUE()){
+				neighbours.add(neighbour);
+			}
 		};
 		
 		// add bottom centre
 		if(pos[1] < this.NROWS - graphScale){
 			int[] neighbour = {pos[0], pos[1] + graphScale};
-			neighbours.add(neighbour);
+			if(rawHeightOfPos(neighbour) != fileInterpreter.getNODATA_VALUE()){
+				neighbours.add(neighbour);
+			}
 		};
 		
 		// add bottom right
 		if(pos[0] < this.NCOLS - graphScale && pos[1] < this.NROWS - graphScale){
 			int[] neighbour = {pos[0] + graphScale, pos[1] + graphScale};
-			neighbours.add(neighbour);
+			if(rawHeightOfPos(neighbour) != fileInterpreter.getNODATA_VALUE()){
+				neighbours.add(neighbour);
+			}
 		};
 		
 		return neighbours;
@@ -179,8 +200,22 @@ public class GraphGenerator {
 	public double dangerCost(int[] point1, int[] point2, int graphScale){
 		double danger = 0;
 		danger += elevationAdvantageDifference(point1, point2);
+		danger += enemiesNearby(point1, point2);
 		
 		return danger;
+	}
+	
+	public double enemiesNearby(int[] point1, int[] point2){
+		ArrayList<int[]> enemyLocations = Config.enemyLocations;
+		double point1Danger = 0;
+		double point2Danger = 0;
+		for(int[] enemy : enemyLocations){
+			double point1Dist = asTheCrowFlies(point1, enemy);
+			double point2Dist = asTheCrowFlies(point2, enemy);
+			point1Danger += 50 / ((point1Dist / 50) * (point1Dist / 50));
+			point2Danger += 50 / ((point2Dist / 50) * (point2Dist / 50));
+		}
+		return Math.max(0, point2Danger - point1Danger);
 	}
 	
 	public double elevationAdvantageDifference(int[] point1, int[] point2){

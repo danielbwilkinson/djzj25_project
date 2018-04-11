@@ -56,6 +56,7 @@ public class GuiMain {
 		final int frameHeight = 720;
 		frame = new JFrame("LiDAR Route Planner");
 		frame.setBounds(100, 100, frameWidth, frameHeight);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gbl = new GridBagLayout();
 		container = new JPanel();
@@ -112,6 +113,10 @@ public class GuiMain {
 	
 	public static IntelPanel getIntelPanel(){
 		return intelPanel;
+	}
+	
+	public static RouteInfoPanel getRouteInfoPanel(){
+		return routeInfoPanel;
 	}
 }
 

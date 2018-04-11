@@ -3,6 +3,7 @@ package guiEngine;
 import java.awt.Canvas;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -14,6 +15,7 @@ public class RenderPanel extends JPanel{
 	private Thread renderThread;
 	private volatile boolean isRunning;
 	private MainGameLoop mainGameLoop;
+	private ArrayList<int[]> enemyLocations;
 	
 	public RenderPanel(){
 		canvas = new Canvas(){
@@ -60,5 +62,22 @@ public class RenderPanel extends JPanel{
 	
 	public void changeModel(){
 		mainGameLoop.changeModel();
+	}
+	
+	public void resetRender(){
+		mainGameLoop.resetRender();
+	}
+	
+	public void addEnemyLocation(int xCoord, int yCoord){
+		mainGameLoop.addEnemy(xCoord, yCoord);
+		GuiMain.getRouteInfoPanel().update();
+	}
+	
+	public ArrayList<int[]> getEnemyLocations(){
+		return mainGameLoop.getEnemyLocations();
+	}
+	
+	public void clearEnemies(){
+		mainGameLoop.clearEnemies();
 	}
 }

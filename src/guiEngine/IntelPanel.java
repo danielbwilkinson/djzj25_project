@@ -2,6 +2,8 @@ package guiEngine;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -98,16 +100,22 @@ public class IntelPanel extends JPanel{
 		addEnemy = new JButton("Add");
 		gc.gridx = 3;
 		add(addEnemy, gc);
+		addEnemy.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0){
+				int[] newEnemyLocation = {(int)enemyLocationX.getValue(),(int) enemyLocationY.getValue()};
+				Config.enemyLocations.add(newEnemyLocation);
+				GuiMain.getRouteInfoPanel().update();
+			}
+		});
 		
 	}
 	
 	public void setRouteParams(){
 		int[] newStart = {(int) startXInput.getValue(), (int) startYInput.getValue()};
-		System.out.printf("Start %d %d \n", newStart[0], newStart[1]);
 		Config.start = newStart;
 		
 		int[] newEnd = {(int) endXInput.getValue(), (int) endYInput.getValue()};
-		System.out.printf("End %d %d \n", newEnd[0], newEnd[1]);
 		Config.end = newEnd;
 	}
 }

@@ -78,7 +78,7 @@ public class Terrain {
 	public float getMinHeight(){
 		float minHeight = Float.MAX_VALUE;
 		for(int x = 1; x < vertices.length; x += 3){
-			if(vertices[x] < minHeight && vertices[x] != -9999){
+			if(vertices[x] < minHeight && vertices[x] != fileInterpreter.getNODATA_VALUE()){
 				minHeight = vertices[x];
 			}
 		}
@@ -90,12 +90,15 @@ public class Terrain {
 		GraphGenerator graphGenerator = new GraphGenerator(dtmFileInterpreter);
 		FileInterpreter dsmInterpreter = new FileInterpreter(false);
 		GraphGenerator dsmGenerator = new GraphGenerator(dsmInterpreter);
-		int[] start = Config.start;//{50,505};
-		int[] end = Config.end;//{150,700};
+		int[] start = Config.start;
+		int[] end = Config.end;
 		graphGenerator.setStartPoint(start);
 		graphGenerator.setEndPoint(end);
 		graphGenerator.makeRoute(dsmGenerator);
 		Route route = graphGenerator.getRoute();
+		if(route.getPath() == null){
+			return null;
+		}
 		System.out.printf("route number of vertices: %d \n", route.getPath().size());
 		ArrayList<int[]> rawRoutePath = route.getPath();
 		float[] routePath = new float[2*rawRoutePath.size()];
@@ -174,6 +177,9 @@ public class Terrain {
 		//this.fileInterpreter = new FileInterpreter(useDTM);
 		vertices = fileInterpreter.getVertices();
 		route = getRoute();
+		if(route == null){
+			return null;
+		}
 		float[] isInRoute = new float[vertices.length];
 		for(int vertexIndex = 0; vertexIndex < vertices.length; vertexIndex+=3){
 			isInRoute[vertexIndex] = 0;

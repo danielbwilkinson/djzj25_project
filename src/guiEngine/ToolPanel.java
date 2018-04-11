@@ -13,6 +13,8 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 
+import engineTester.Config;
+
 public class ToolPanel extends JPanel {
 	private JButton openButton;
 	private JButton saveButton;
@@ -43,13 +45,33 @@ public class ToolPanel extends JPanel {
 		openButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				int returnVal = fc.showOpenDialog(ToolPanel.this);
+				int returnVal = fc.showDialog(ToolPanel.this, "DTM File");
+				String newDTM;
+				String newDSM;
 				if(returnVal == JFileChooser.APPROVE_OPTION){
 					File file = fc.getSelectedFile();
-					System.out.println(file.getName());
+					System.out.println(file.getAbsolutePath());
+					newDTM = file.getAbsolutePath();
+					
 				} else {
 					System.out.println("User cancelled open");
+					return;
 				}
+				
+				returnVal = fc.showDialog(ToolPanel.this, "DSM File");
+				if(returnVal == JFileChooser.APPROVE_OPTION){
+					File file = fc.getSelectedFile();
+					System.out.println(file.getAbsolutePath());
+					newDSM = file.getAbsolutePath();
+				} else {
+					System.out.println("User cancelled open");
+					return;
+				}
+				
+				Config.dtmFileName = newDTM;
+				Config.dsmFileName = newDSM;
+				
+				GuiMain.getRenderPanel().resetRender();
 			}
 		});
 		
