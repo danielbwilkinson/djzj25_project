@@ -21,6 +21,12 @@ public class Route {
 	
 	public double heuristicFunction(int[] point1, int[] point2){
 		double h = graphGenerator.asTheCrowFlies(point1, point2);
+		h += Math.abs(graphGenerator.heightOfPos(point2) - graphGenerator.heightOfPos(point1));  
+		
+		// bring in line with current weightings
+		h *= (Config.exertionWeight + Config.dangerWeight);
+		
+		
 		
 		return h;
 	}
@@ -33,7 +39,7 @@ public class Route {
 	}
 	
 	public boolean dijkstra(){
-		int graphScale = (int) Math.round(graphGenerator.asTheCrowFlies(start, end) / 100);
+		int graphScale = (int) Math.round(graphGenerator.asTheCrowFlies(start, end) / Config.routeResolution);
 		
 		if(graphScale == 0){
 			graphScale = 1;
@@ -99,7 +105,7 @@ public class Route {
 			minWeight = Float.MAX_VALUE;
 			int prevMinNode = minNode;
 			for(int x = 0; x < discovered.size(); x++){
-				if((!visited.contains(x)) && totalPathWeight.get(x)  + heuristicFunction(discovered.get(x), end)<= minWeight){
+				if((!visited.contains(x)) && totalPathWeight.get(x) + heuristicFunction(discovered.get(x), end)<= minWeight){
 					minWeight = (float) (totalPathWeight.get(x) + heuristicFunction(discovered.get(x), end));
 					minNode = x;
 				}

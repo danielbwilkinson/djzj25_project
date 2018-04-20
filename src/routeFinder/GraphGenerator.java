@@ -53,24 +53,6 @@ public class GraphGenerator {
 		return Math.sqrt(Math.pow((end[0] - start[0]),2) + Math.pow((end[1] - start[1]),2));
 	}
 	
-	private float testExertion(){
-		ArrayList<int[]> path = new ArrayList<int[]>();
-		int[] a = {1,1};
-		int[] b = {2,2};
-		int[] c = {3,3};
-		int[] d = {4,4};
-		int[] e = {4,5};
-		
-		double totalExertion = exertionBetweenNeighbours(a,b,1) + 
-				exertionBetweenNeighbours(b,c,1) +
-				exertionBetweenNeighbours(c,d,1) +
-				exertionBetweenNeighbours(d,e,1);
-		System.out.println(totalExertion);
-		
-				
-		return 1;
-	}
-	
 	public double exertionBetweenNeighbours(int[] start, int[] end, int graphScale){
 		double distance;
 		if(start[0] == end[0] || start[1] == end[1]){
@@ -118,6 +100,9 @@ public class GraphGenerator {
 				height = sumHeights / numberRealNeighbours;
 			} else {
 				graphScale++;
+				if(graphScale >= 10){
+					break;
+				}
 			}
 		}
 		return height;
@@ -201,8 +186,39 @@ public class GraphGenerator {
 		double danger = 0;
 		danger += elevationAdvantageDifference(point1, point2);
 		danger += enemiesNearby(point1, point2);
+		danger += coverDanger(point1, point2);
 		
+		//bring in line with usual exertion score
+		danger *= 5;
 		return danger;
+	}
+	
+	public double coverDanger(int[] point1, int[] point2){
+		ArrayList<int[]> point1Neighbours = getNeighbours(point1, 1);
+		ArrayList<int[]> point2Neighbours = getNeighbours(point2, 1);
+		
+		double numberCoveringPoint1 = 0;
+		for(int[] neighbour : point1Neighbours){
+			if(dsmGraph.heightOfPos(neighbour) > heightOfPos(point1) + 1){
+				numberCoveringPoint1++;
+			}
+		}
+		numberCoveringPoint1 /= point1Neighbours.size();
+		
+		double numberCoveringPoint2 = 0;
+		for(int[] neighbour : point2Neighbours){
+			if(dsmGraph.heightOfPos(neighbour) > heightOfPos(point2) + 1){
+				numberCoveringPoint2++;
+			}
+		}
+		numberCoveringPoint2 /= point1Neighbours.size();
+		
+		if(numberCoveringPoint2 > numberCoveringPoint1){
+			return 0;
+		}
+		else {
+			return (numberCoveringPoint1 - numberCoveringPoint2) * point2Neighbours.size();
+		}
 	}
 	
 	public double enemiesNearby(int[] point1, int[] point2){
@@ -215,7 +231,7 @@ public class GraphGenerator {
 			point1Danger += 50 / ((point1Dist / 50) * (point1Dist / 50));
 			point2Danger += 50 / ((point2Dist / 50) * (point2Dist / 50));
 		}
-		return Math.max(0, point2Danger - point1Danger);
+		return Math.max(0, 5*(point2Danger - point1Danger));
 	}
 	
 	public double elevationAdvantageDifference(int[] point1, int[] point2){
@@ -266,12 +282,12 @@ public class GraphGenerator {
 		double point2ElevAdv;
 		
 		// if on flat ground, no tactical disadvantage but no advantage
-		if(point1HeightRange < 1){
-			point1ElevAdv = 3;
+		if(point1HeightRange < 0.1){
+			point1ElevAdv = 5;
 		}
 		// if on top of hill, then tactical advantage but silhouetted
 		else if (point1HeightProportion > 0.9){
-			point1ElevAdv = 4;
+			point1ElevAdv = 3;
 		}
 		// if on side of hill, we want to be near the top
 		else if (point1HeightProportion > 0.1){
@@ -279,28 +295,28 @@ public class GraphGenerator {
 		}
 		// if in bottom of valley, no tactical advantage but easily hidden
 		else {
-			point1ElevAdv = 7;
+			point1ElevAdv = 6;
 		}
 		
 		//repeat for point 2
 		// if on flat ground, no tactical disadvantage but no advantage
-		if(point2HeightRange < 1){
-			point2ElevAdv = 3;
+		if(point2HeightRange < 0.1){
+			point2ElevAdv = 5;
 		}
 		// if on top of hill, then tactical advantage but silhouetted
 		else if (point2HeightProportion > 0.9){
-			point2ElevAdv = 4;
+			point2ElevAdv = 3;
 		}
 		// if on side of hill, we want to be near the top
 		else if (point2HeightProportion > 0.1){
-			point2ElevAdv = 2 + 10*point1HeightProportion;
+			point2ElevAdv = 2 + 10*point2HeightProportion;
 		}
 		// if in bottom of valley, no tactical advantage but easily hidden
 		else {
-			point2ElevAdv = 5;
+			point2ElevAdv = 6;
 		}
 		
-		return Math.max(0,point2ElevAdv - point1ElevAdv);		
+		return Math.max(0, point2ElevAdv - point1ElevAdv);		
 	}
 	
 	public double groundTypeCoeff(int[] point1, int[] point2, int graphScale){
@@ -356,8 +372,8 @@ public class GraphGenerator {
 		// if variance is small, assume area is building
 		else {
 			// calculate correlation between neighbour heights
-			double correlationCoeffPoint1 = calculateCorrelation(point1Neighbours, point1DsmNeighbourHeights);
-			double correlationCoeffPoint2 = calculateCorrelation(point2Neighbours, point2DsmNeighbourHeights);
+			double correlationCoeffPoint1 = calculateCorrelation(getNeighbours(point1, 1));
+			double correlationCoeffPoint2 = calculateCorrelation(getNeighbours(point2, 1));
 			
 			if((correlationCoeffPoint1 > -5 && correlationCoeffPoint1 < 5) || (correlationCoeffPoint2 > -5 && correlationCoeffPoint2 < 5)){
 				//System.out.printf("point %d %d coeff %f\n", point1[0], point1[1], correlationCoeffPoint1);
@@ -397,6 +413,9 @@ public class GraphGenerator {
 		}
 		point2DsmSumDiffSquared /= point2DsmNeighbourHeights.size();
 		
+		// to do : change point2 to new building recognition (same as point1)
+		// won't affect logic, as point1 set to building if point2 is building
+		
 		int point2GroundType;
 		// if less than 1 metre between terrain and surface, ground type is open
 		if(point2AvgDtm > point2AvgDsm - 1){
@@ -416,13 +435,13 @@ public class GraphGenerator {
 		
 		double coeff;
 		if(point1GroundType == GROUND_TYPE_BUILDING || point2GroundType == GROUND_TYPE_BUILDING){
-			coeff = 20;
+			coeff = 2000;
 		}
 		else if(point1GroundType == GROUND_TYPE_FOREST || point2GroundType == GROUND_TYPE_FOREST){
 			coeff = 2.5;
 		}
 		else if(point1GroundType == GROUND_TYPE_OTHER || point2GroundType == GROUND_TYPE_OTHER){
-			coeff = 1.5;
+			coeff = 50;
 		}
 		else {
 			coeff = 1;
@@ -431,8 +450,12 @@ public class GraphGenerator {
 		return coeff;
 	}
 	
-	public double calculateCorrelation(ArrayList<int[]> positions, ArrayList<Double> heights){
+	public double calculateCorrelation(ArrayList<int[]> positions){
 		// X = position[0], Y = height, Z = position[1]
+		ArrayList<Double> heights = new ArrayList<Double>();
+		for(int[] position : positions){
+			heights.add(heightOfPos(position));
+		}
 		
 		double totalXYZ = 0;
 		double meanXYZ;

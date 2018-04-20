@@ -25,6 +25,11 @@ public class IntelPanel extends JPanel{
 	private SpinnerNumberModel enemySpinnerXModel;
 	private SpinnerNumberModel enemySpinnerYModel;
 	
+	private SpinnerNumberModel exertionWeightModel;
+	private SpinnerNumberModel dangerWeightModel;
+	
+	private SpinnerNumberModel routeResolutionModel;
+	
 	private JLabel startLabel;
 	private JSpinner startXInput;
 	private JSpinner startYInput;
@@ -32,6 +37,14 @@ public class IntelPanel extends JPanel{
 	private JLabel endLabel;
 	private JSpinner endXInput;
 	private JSpinner endYInput;
+	
+	private JLabel exertionWeightLabel;
+	private JSpinner exertionWeight;
+	private JLabel dangerWeightLabel;
+	private JSpinner dangerWeight;
+	
+	private JLabel routeResolutionLabel;
+	private JSpinner routeResolution;
 	
 	private JLabel enemyLocLabel;
 	private JSpinner enemyLocationX;
@@ -42,16 +55,21 @@ public class IntelPanel extends JPanel{
 	
 	public IntelPanel(){
 		startSpinnerXModel = new SpinnerNumberModel(	0,		// initial value
-												0,		// min value
-												1000,	// max value
-												1);		// step
+														0,		// min value
+														1000,	// max value
+														1);		// step
 		startSpinnerYModel = new SpinnerNumberModel(0, 0, 1000, 1);
 		
-		endSpinnerXModel = new SpinnerNumberModel(0, 0, 1000, 1);
-		endSpinnerYModel = new SpinnerNumberModel(0, 0, 1000, 1);
+		endSpinnerXModel = new SpinnerNumberModel(0, 0, 999, 1);
+		endSpinnerYModel = new SpinnerNumberModel(0, 0, 999, 1);
 		
-		enemySpinnerXModel = new SpinnerNumberModel(0, 0, 1000, 1);
-		enemySpinnerYModel = new SpinnerNumberModel(0, 0, 1000, 1);
+		enemySpinnerXModel = new SpinnerNumberModel(0, 0, 999, 1);
+		enemySpinnerYModel = new SpinnerNumberModel(0, 0, 999, 1);
+		
+		exertionWeightModel = new SpinnerNumberModel(1, 0, 999, 1);
+		dangerWeightModel = new SpinnerNumberModel(1, 0, 999, 1);
+		
+		routeResolutionModel = new SpinnerNumberModel(100, 10, 1000, 1);
 		
 		gc = new GridBagConstraints();
 		setLayout(new GridBagLayout());
@@ -84,9 +102,42 @@ public class IntelPanel extends JPanel{
 		gc.gridx = 2;
 		add(endYInput, gc);
 		
-		enemyLocLabel = new JLabel("Known enemy location");
+		exertionWeightLabel = new JLabel("Exertion importance");
 		gc.gridy = 2;
 		gc.gridx = 0;
+		add(exertionWeightLabel, gc);
+		
+		exertionWeight = new JSpinner(exertionWeightModel);
+		gc.gridx = 1;
+		gc.gridwidth = 2;
+		add(exertionWeight, gc);
+		
+		dangerWeightLabel = new JLabel("Danger importance");
+		gc.gridy = 3;
+		gc.gridx = 0;
+		gc.gridwidth = 1;
+		add(dangerWeightLabel, gc);
+		
+		dangerWeight = new JSpinner(dangerWeightModel);
+		gc.gridx = 1;
+		gc.gridwidth = 2;
+		add(dangerWeight, gc);
+		
+		routeResolutionLabel = new JLabel("Route resolution");
+		gc.gridy = 4;
+		gc.gridx = 0;
+		gc.gridwidth = 1;
+		add(routeResolutionLabel, gc);
+		
+		routeResolution = new JSpinner(routeResolutionModel);
+		gc.gridx = 1;
+		gc.gridwidth = 2;
+		add(routeResolution, gc);
+		
+		enemyLocLabel = new JLabel("Known enemy location");
+		gc.gridy = 5;
+		gc.gridx = 0;
+		gc.gridwidth = 1;
 		add(enemyLocLabel, gc);
 		
 		enemyLocationX = new JSpinner(enemySpinnerXModel);
@@ -117,5 +168,14 @@ public class IntelPanel extends JPanel{
 		
 		int[] newEnd = {(int) endXInput.getValue(), (int) endYInput.getValue()};
 		Config.end = newEnd;
+		
+		double newExertionWeight = (int) exertionWeight.getValue();
+		Config.exertionWeight = newExertionWeight;
+		
+		double newDangerWeight = (int) dangerWeight.getValue();
+		Config.dangerWeight = newDangerWeight;
+		
+		double newRouteResolution = (int) routeResolution.getValue();
+		Config.routeResolution = newRouteResolution;
 	}
 }

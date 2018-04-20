@@ -75,7 +75,7 @@ public class ToolPanel extends JPanel {
 			}
 		});
 		
-		saveButton = new JButton("Save");
+		/*saveButton = new JButton("Save");
 		saveButton.setFont(buttonFont);
 		saveButton.addActionListener(new ActionListener(){
 			@Override
@@ -99,7 +99,7 @@ public class ToolPanel extends JPanel {
 		
 		friendlyButton = new JButton("Friendly");
 		friendlyButton.setFont(buttonFont);
-		
+		*/
 		findRouteButton = new JButton("Find Route");
 		findRouteButton.setFont(buttonFont);
 		findRouteButton.addActionListener(new ActionListener(){
@@ -110,9 +110,9 @@ public class ToolPanel extends JPanel {
 			}
 		});
 		
-		routeParamsButton = new JButton("Route Parameters");
+		/*routeParamsButton = new JButton("Route Parameters");
 		routeParamsButton.setFont(buttonFont);
-		
+		*/
 		changeModelButton = new JButton("Change Model");
 		changeModelButton.setFont(buttonFont);
 		changeModelButton.addActionListener(new ActionListener(){
@@ -140,7 +140,7 @@ public class ToolPanel extends JPanel {
 		//// Add 'go to create new medication' button		
 		gc.gridx = 1;
 		//gc.insets = new Insets(10,10,10,10);
-		add(saveButton, gc);
+		/*add(saveButton, gc);
 		
 		//gc.weighty = 0.1;
 		gc.gridx = 2;
@@ -152,17 +152,17 @@ public class ToolPanel extends JPanel {
 		gc.gridx = 4;
 		add(friendlyButton, gc);
 		
-		gc.gridx = 5;
+		gc.gridx = 5;*/
 		add(findRouteButton, gc);
 		
-		gc.gridx = 6;
+		/*gc.gridx = 6;
 		add(routeParamsButton, gc);	
-		
-		gc.gridx = 7;
+		*/
+		gc.gridx = 2;//7;
 		add(changeModelButton, gc);
 		
 		//filler panel to push options to left
-		gc.gridx = 8;
+		gc.gridx = 3;//8;
 		gc.weightx = 1;
 		fillerPanel = new JPanel();
 		fillerPanel.setBackground(this.getBackground());

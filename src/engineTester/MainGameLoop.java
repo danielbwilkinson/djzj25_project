@@ -46,7 +46,7 @@ public class MainGameLoop {
 		changeModelRequested = false;
 		resetRequested = false;
 		enemyLocations = new ArrayList<int[]>();
-		light = new Light(new Vector3f(20000,20000,2000),new Vector3f(1,1,1));
+		light = new Light(new Vector3f(500,2000,500),new Vector3f(1,1,1)); // 20000, 20000, 2000
 		
 		terrain = new Terrain(0,0,loader);
 		

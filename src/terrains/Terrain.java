@@ -6,6 +6,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import engineTester.Config;
+import engineTester.Evaluator;
 import models.RawModel;
 import renderEngine.FileInterpreter;
 import renderEngine.Loader;
@@ -92,6 +93,10 @@ public class Terrain {
 		GraphGenerator dsmGenerator = new GraphGenerator(dsmInterpreter);
 		int[] start = Config.start;
 		int[] end = Config.end;
+		
+		Evaluator evaluator = new Evaluator(graphGenerator);
+		evaluator.startTimer();
+		
 		graphGenerator.setStartPoint(start);
 		graphGenerator.setEndPoint(end);
 		graphGenerator.makeRoute(dsmGenerator);
@@ -107,6 +112,9 @@ public class Terrain {
 			routePath[2 * x] = position[0];
 			routePath[2 * x + 1] = position[1];
 		}
+		
+		evaluator.endTimer();
+		evaluator.analyseRoute(route);
 		return routePath;
 	}
 
@@ -168,6 +176,20 @@ public class Terrain {
 					}
 				}
 			}
+			if(Config.enemyLocations != null){
+				for(int[] location : Config.enemyLocations){
+					System.out.println("Considering enemy");
+					if(	vertices[vertexIndex] <= location[0] + 1 &&
+						vertices[vertexIndex] >= location[0] - 1 &&
+						vertices[vertexIndex + 2] <= location[1] + 1 &&
+						vertices[vertexIndex + 2] >= location[1] - 1){
+						System.out.println("Coloring enemy");
+						isInRoute[vertexIndex] = 2;
+						isInRoute[vertexIndex + 1] = 2;
+						isInRoute[vertexIndex + 2] = 2;
+					}
+				}
+			}
 		}
 		loader.cleanUp();
 		return loader.loadToVAO(vertices, textureCoords, isInRoute, indices, isInRoute);
@@ -194,6 +216,20 @@ public class Terrain {
 					isInRoute[vertexIndex + 1] = 1;
 					isInRoute[vertexIndex + 2] = 1;
 					break;
+				}
+			}
+			if(Config.enemyLocations != null){
+				for(int[] location : Config.enemyLocations){
+					//System.out.println("Considering enemy");
+					if(	vertices[vertexIndex] <= location[0] + 2 &&
+						vertices[vertexIndex] >= location[0] - 2 &&
+						vertices[vertexIndex + 2] <= location[1] + 2 &&
+						vertices[vertexIndex + 2] >= location[1] - 2){
+						//System.out.println("Coloring enemy");
+						isInRoute[vertexIndex] = 2;
+						isInRoute[vertexIndex + 1] = 2;
+						isInRoute[vertexIndex + 2] = 2;
+					}
 				}
 			}
 		}
