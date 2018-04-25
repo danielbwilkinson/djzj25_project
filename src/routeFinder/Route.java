@@ -1,6 +1,9 @@
 package routeFinder;
 
 import java.util.ArrayList;
+
+import engineTester.Config;
+
 import java.lang.Math;
 
 public class Route {
@@ -18,35 +21,42 @@ public class Route {
 	
 	public double heuristicFunction(int[] point1, int[] point2){
 		double h = graphGenerator.asTheCrowFlies(point1, point2);
+		h += Math.abs(graphGenerator.heightOfPos(point2) - graphGenerator.heightOfPos(point1));  
+		
+		// bring in line with current weightings
+		h *= (Config.exertionWeight + Config.dangerWeight);
+		
+		
 		
 		return h;
 	}
 	
 	public double costFunction(int[] point1, int[] point2, int graphScale){
-		double c =  graphGenerator.exertionBetweenNeighbours(point1, point2, graphScale);
-		c += graphGenerator.dangerCost(point1, point2, graphScale);
+		double c =  graphGenerator.exertionBetweenNeighbours(point1, point2, graphScale) * Config.exertionWeight;
 		c *= graphGenerator.groundTypeCoeff(point1, point2, graphScale);
+		c += (graphGenerator.dangerCost(point1, point2, graphScale) * Config.dangerWeight);
 		return c;
 	}
 	
 	public boolean dijkstra(){
-		int graphScale = (int) Math.round(graphGenerator.asTheCrowFlies(start, end) / 50);
+		int graphScale = (int) Math.round(graphGenerator.asTheCrowFlies(start, end) / Config.routeResolution);
+		
 		if(graphScale == 0){
 			graphScale = 1;
 		}
 		int[] scaledEnd = new int[2];
-		scaledEnd[0] = (int) Math.max(1, (graphScale * Math.floor(this.end[0] / graphScale)));
-		scaledEnd[1] = (int) Math.max(1, (graphScale * Math.floor(this.end[1] / graphScale)));
+		scaledEnd[0] = (int) (graphScale * Math.floor(this.end[0] / graphScale));
+		scaledEnd[1] = (int) (graphScale * Math.floor(this.end[1] / graphScale));
 		this.end = scaledEnd;
 		
 		int[] scaledStart = new int[2];
-		scaledStart[0] = (int) Math.max(1, (graphScale * Math.floor(this.start[0] / graphScale)));
-		scaledStart[1] = (int) Math.max(1, (graphScale * Math.floor(this.start[1] / graphScale)));
+		scaledStart[0] = (int) (graphScale * Math.floor(this.start[0] / graphScale));
+		scaledStart[1] = (int) (graphScale * Math.floor(this.start[1] / graphScale));
 		this.start = scaledStart;
 		
 		//Initialise lists to keep track of needed variables for algorithm
 		
-		//list of positions that are neighbours of visited nodes and visited nodes
+		//list of positions that are visited nodes and neighbours of visited nodes
 		ArrayList<int[]> discovered = new ArrayList<int[]>();
 		
 		// list of indices in discovered list that have been finalised
@@ -95,7 +105,7 @@ public class Route {
 			minWeight = Float.MAX_VALUE;
 			int prevMinNode = minNode;
 			for(int x = 0; x < discovered.size(); x++){
-				if((!visited.contains(x)) && totalPathWeight.get(x)  + heuristicFunction(discovered.get(x), end)<= minWeight){
+				if((!visited.contains(x)) && totalPathWeight.get(x) + heuristicFunction(discovered.get(x), end)<= minWeight){
 					minWeight = (float) (totalPathWeight.get(x) + heuristicFunction(discovered.get(x), end));
 					minNode = x;
 				}

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.lwjgl.util.vector.Matrix4f;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
+import engineTester.Config;
+import engineTester.Evaluator;
 import models.RawModel;
 import renderEngine.FileInterpreter;
 import renderEngine.Loader;
@@ -22,6 +24,11 @@ public class Terrain {
 	private RawModel model;
 //	private ModelTexture texture;
 	private float[] vertices;
+	private int[] indices;
+	private float[] textureCoords;
+	private float[] route;
+	
+	private boolean useDTM;
 	
 	private FileInterpreter fileInterpreter;
 	
@@ -29,6 +36,7 @@ public class Terrain {
 		//this.texture = texture;
 		this.x = gridX * SIZE;
 		this.z = gridZ * SIZE;
+		useDTM = true;
 		this.model = generateTerrain(loader);
 	}
 	
@@ -71,7 +79,7 @@ public class Terrain {
 	public float getMinHeight(){
 		float minHeight = Float.MAX_VALUE;
 		for(int x = 1; x < vertices.length; x += 3){
-			if(vertices[x] < minHeight && vertices[x] != -9999){
+			if(vertices[x] < minHeight && vertices[x] != fileInterpreter.getNODATA_VALUE()){
 				minHeight = vertices[x];
 			}
 		}
@@ -79,15 +87,23 @@ public class Terrain {
 	}
 
 	public float[] getRoute(){
-		GraphGenerator graphGenerator = new GraphGenerator(this.fileInterpreter);
+		FileInterpreter dtmFileInterpreter = new FileInterpreter(true);
+		GraphGenerator graphGenerator = new GraphGenerator(dtmFileInterpreter);
 		FileInterpreter dsmInterpreter = new FileInterpreter(false);
 		GraphGenerator dsmGenerator = new GraphGenerator(dsmInterpreter);
-		int[] start = {50,505};
-		int[] end = {150,700};
+		int[] start = Config.start;
+		int[] end = Config.end;
+		
+		Evaluator evaluator = new Evaluator(graphGenerator);
+		evaluator.startTimer();
+		
 		graphGenerator.setStartPoint(start);
 		graphGenerator.setEndPoint(end);
 		graphGenerator.makeRoute(dsmGenerator);
 		Route route = graphGenerator.getRoute();
+		if(route.getPath() == null){
+			return null;
+		}
 		System.out.printf("route number of vertices: %d \n", route.getPath().size());
 		ArrayList<int[]> rawRoutePath = route.getPath();
 		float[] routePath = new float[2*rawRoutePath.size()];
@@ -96,6 +112,9 @@ public class Terrain {
 			routePath[2 * x] = position[0];
 			routePath[2 * x + 1] = position[1];
 		}
+		
+		evaluator.endTimer();
+		evaluator.analyseRoute(route);
 		return routePath;
 	}
 
@@ -103,8 +122,8 @@ public class Terrain {
 		int count = VERTEX_COUNT * VERTEX_COUNT;
 		this.vertices = new float[count * 3];
 		float[] normals = new float[count * 3];
-		float[] textureCoords = new float[count*2];
-		int[] indices = new int[6*(VERTEX_COUNT-1)*(VERTEX_COUNT-1)];
+		this.textureCoords = new float[count*2];
+		this.indices = new int[6*(VERTEX_COUNT-1)*(VERTEX_COUNT-1)];
 		int vertexPointer = 0;
 		for(int i=0;i<VERTEX_COUNT;i++){
 			for(int j=0;j<VERTEX_COUNT;j++){
@@ -134,9 +153,55 @@ public class Terrain {
 				indices[pointer++] = bottomRight;
 			}
 		}
-		this.fileInterpreter = new FileInterpreter(true);
+		
+		this.fileInterpreter = new FileInterpreter(useDTM);
+		
 		vertices = fileInterpreter.getVertices();
-		float[] route = getRoute();
+		//float[] route = getRoute();
+		float[] isInRoute = new float[vertices.length];
+		for(int vertexIndex = 0; vertexIndex < vertices.length; vertexIndex+=3){
+			isInRoute[vertexIndex] = 0;
+			isInRoute[vertexIndex+1] = 0;
+			isInRoute[vertexIndex+2] = 0;
+			if(route != null){
+				for(int routeIndex = 0; routeIndex < route.length / 2; routeIndex++){
+					if(vertices[vertexIndex] >= route[2 * routeIndex] - 1 && 
+					vertices[vertexIndex] <= route[2 * routeIndex] + 1 &&
+					vertices[vertexIndex + 2] >= route[2 * routeIndex + 1] - 1 &&
+					vertices[vertexIndex + 2] <= route[2 * routeIndex + 1] + 1){
+						isInRoute[vertexIndex] = 1;
+						isInRoute[vertexIndex + 1] = 1;
+						isInRoute[vertexIndex + 2] = 1;
+						break;
+					}
+				}
+			}
+			if(Config.enemyLocations != null){
+				for(int[] location : Config.enemyLocations){
+					System.out.println("Considering enemy");
+					if(	vertices[vertexIndex] <= location[0] + 1 &&
+						vertices[vertexIndex] >= location[0] - 1 &&
+						vertices[vertexIndex + 2] <= location[1] + 1 &&
+						vertices[vertexIndex + 2] >= location[1] - 1){
+						System.out.println("Coloring enemy");
+						isInRoute[vertexIndex] = 2;
+						isInRoute[vertexIndex + 1] = 2;
+						isInRoute[vertexIndex + 2] = 2;
+					}
+				}
+			}
+		}
+		loader.cleanUp();
+		return loader.loadToVAO(vertices, textureCoords, isInRoute, indices, isInRoute);
+	}
+	
+	public RawModel makeRoute(Loader loader){
+		//this.fileInterpreter = new FileInterpreter(useDTM);
+		vertices = fileInterpreter.getVertices();
+		route = getRoute();
+		if(route == null){
+			return null;
+		}
 		float[] isInRoute = new float[vertices.length];
 		for(int vertexIndex = 0; vertexIndex < vertices.length; vertexIndex+=3){
 			isInRoute[vertexIndex] = 0;
@@ -153,8 +218,29 @@ public class Terrain {
 					break;
 				}
 			}
+			if(Config.enemyLocations != null){
+				for(int[] location : Config.enemyLocations){
+					//System.out.println("Considering enemy");
+					if(	vertices[vertexIndex] <= location[0] + 2 &&
+						vertices[vertexIndex] >= location[0] - 2 &&
+						vertices[vertexIndex + 2] <= location[1] + 2 &&
+						vertices[vertexIndex + 2] >= location[1] - 2){
+						//System.out.println("Coloring enemy");
+						isInRoute[vertexIndex] = 2;
+						isInRoute[vertexIndex + 1] = 2;
+						isInRoute[vertexIndex + 2] = 2;
+					}
+				}
+			}
 		}
+		loader.cleanUp();
 		return loader.loadToVAO(vertices, textureCoords, isInRoute, indices, isInRoute);
+	}
+	
+	public RawModel changeModel(Loader loader){
+		System.out.println("Terrain changing model");
+		useDTM = !useDTM;
+		return generateTerrain(loader);
 	}
 
 }

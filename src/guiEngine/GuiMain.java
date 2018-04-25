@@ -17,10 +17,10 @@ public class GuiMain {
 	private GridBagConstraints gc;
 	
 	//individual interface declaration
-	private ToolPanel toolPanel;
-	private IntelPanel intelPanel;
-	private RenderPanel renderPanel;
-	private RouteInfoPanel routeInfoPanel;
+	private static ToolPanel toolPanel;
+	private static IntelPanel intelPanel;
+	private static RenderPanel renderPanel;
+	private static RouteInfoPanel routeInfoPanel;
 	//individual button declaration
 	
 	/**
@@ -56,6 +56,7 @@ public class GuiMain {
 		final int frameHeight = 720;
 		frame = new JFrame("LiDAR Route Planner");
 		frame.setBounds(100, 100, frameWidth, frameHeight);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gbl = new GridBagLayout();
 		container = new JPanel();
@@ -104,6 +105,18 @@ public class GuiMain {
 		
 		
 		frame.getContentPane().add(container);
+	}
+	
+	public static RenderPanel getRenderPanel(){
+		return renderPanel;
+	}
+	
+	public static IntelPanel getIntelPanel(){
+		return intelPanel;
+	}
+	
+	public static RouteInfoPanel getRouteInfoPanel(){
+		return routeInfoPanel;
 	}
 }
 

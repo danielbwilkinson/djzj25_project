@@ -5,10 +5,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import engineTester.Config;
+
 public class FileInterpreter {
 
-	private final String dtmFileName = "C:/Users/Daniel Wilkinson/Documents/Uni/Year 3/Project/data/nz2045_DTM_1M.asc";
-	private final String dsmFileName = "C:/Users/Daniel Wilkinson/Documents/Uni/Year 3/Project/data/LIDAR-DSM-1M-NZ24nw/nz2045_DSM_1M.asc";
+	//private final String dtmFileName = Config.dtmFileName;//"C:/Users/Daniel Wilkinson/Documents/Uni/Year 3/Project/data/nz2045_DTM_1M.asc";
+	//private final String dsmFileName = Config.dsmFileName;//"C:/Users/Daniel Wilkinson/Documents/Uni/Year 3/Project/data/LIDAR-DSM-1M-NZ24nw/nz2045_DSM_1M.asc";
 
 	private int NCOLS;
 	private int NROWS;
@@ -21,12 +23,27 @@ public class FileInterpreter {
 	private int[] indices;
 	
 	public FileInterpreter(boolean getDTM){
+		//set up empty file interpreter if no filenames provided
+		if(Config.dtmFileName == null || Config.dsmFileName == null){
+			System.out.println("No model filenames found");
+			this.NCOLS = 0;
+			this.NROWS = 0;
+			this.XLLCORNER = 0;
+			this.YLLCORNER = 0;
+			this.CELLSIZE = 1;
+			this.NODATA_VALUE = 0;
+			this.lineCounter = 0;
+			this.vertices = new float[0];
+			this.indices = new int[0];
+			return;
+		}
+		
 		try{
 			FileReader fileReader;
 			if(getDTM){
-				fileReader = new FileReader(dtmFileName);
+				fileReader = new FileReader(Config.dtmFileName);
 			} else {
-				fileReader = new FileReader(dsmFileName);
+				fileReader = new FileReader(Config.dsmFileName);
 			}
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			this.lineCounter = 0;

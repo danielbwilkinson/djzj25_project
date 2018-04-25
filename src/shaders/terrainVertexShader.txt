@@ -26,10 +26,12 @@ void main(void){
 	
 	float heightProportion = (worldPosition.y - minHeight) / (maxHeight - minHeight);
 	pass_vertexColor = vec4(1.4*(heightProportion), 0.9-2*(heightProportion-0.5)*(heightProportion-0.5), 0.8-(heightProportion), 1.0);
-	//pass_vertexColor = vec4(1.5*heightProportion+0.5, 1.5*heightProportion+0.5, 1.5*heightProportion+0.5, 1);
-	
-	if(normal.x != 0){
+
+	if(normal.x == 1){
 		pass_vertexColor = vec4(1,1,1,1);
+	}
+	if(normal.x == 2){
+		pass_vertexColor = vec4(0,0,0,1);
 	}
 	vec3 newNormal = vec3(0,1,0);
 	
