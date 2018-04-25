@@ -56,7 +56,7 @@ public class Route {
 		
 		//Initialise lists to keep track of needed variables for algorithm
 		
-		//list of positions that are neighbours of visited nodes and visited nodes
+		//list of positions that are visited nodes and neighbours of visited nodes
 		ArrayList<int[]> discovered = new ArrayList<int[]>();
 		
 		// list of indices in discovered list that have been finalised
